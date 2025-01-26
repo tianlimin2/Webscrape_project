@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ChatGPT AI Assistant</title>
+    <meta name="viewport"
+          content="width=device-width,height=device-height, user-scalable=no,initial-scale=1, minimum-scale=1, maximum-scale=1,target-densitydpi=device-dpi ">
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@2.51.3/dist/full.css" rel="stylesheet" type="text/css"/>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .answer-paragraph {
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="flex flex-col items-center h-screen w-screen">
+        <div class="flex flex-col items-center justify-center">
+            <h1 class="text-5xl font-bold mt-20">Travel Light, Travel Green</h1>
+            <p class="text-xl my-10">Powered by vector search and GPT API</p>
+        </div>
+        <div class="flex flex-row items-center justify-center w-full">
+            <input id="search" type="text" placeholder="Type your question here..."
+                   class="input input-bordered w-2/3 lg:w-2/5 mr-2"/>
+            <button class="btn btn-primary">Ask</button>
+        </div>
+        <div class="flex flex-col justify-start mt-10 mx-5">
+            <div class="card bg-base-100 shadow-md">
+                <div class="card-body">
+                    <h2 class="card-title">AI Answer</h2>
+                    <div id="answer" class="answer-paragraph"></div>
+                    <div class="card-actions justify-start" id="tags"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    const submitButton = document.querySelector('button');
+    const search = document.querySelector('#search');
+    const card = document.querySelector('.card');
+    card.style.display = 'none';
+
+    submitButton.addEventListener('click', () => {
+        const data = {
+            search: search.value,
+        };
+        fetch('/search', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(res => res.json())
+        .then(data => {
+            card.style.display = 'block';
+            const answerElement = document.querySelector('#answer');
+            answerElement.innerHTML = data.data.answer
+                .split('\n') // Split by line breaks
+                .map(paragraph => `<p>${paragraph}</p>`) // Wrap each paragraph
+                .join(''); // Combine into a single string
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            const answerElement = document.querySelector('#answer');
+            answerElement.innerHTML = "<p>Something went wrong. Please try again later.</p>";
+        });
+    });
+</script>
+</body>
+</html>
